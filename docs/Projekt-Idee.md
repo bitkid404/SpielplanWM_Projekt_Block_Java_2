@@ -10,10 +10,12 @@ sowie das Datum des jeweiligen Spiels.(Rahmenspielplan)
 Der Projektspielplan wird also eine Art "Blanko-Spielplan". 
 
 Funktionale Anforderungen:
-Der User soll aus einer Liste von Nationen jeweils die passenden Nationalteams auswählen können
-und diese dann den Gruppen zuordnen können. Es sollen auch Spielergebnisse eingetragen werden können.
+Der Benutzer soll Mannschaften/Nationen dem allgemeinen Team-Pool hinzufügen können.
+Der User soll aus einer Liste von Nationen (Team-Pool) jeweils die passenden Nationalteams auswählen können
+und diese dann den jeweiligen Gruppen zuordnen können. Diese Teams besetzen dann die vorgesehenen Startplätze.
+Es sollen auch Spielergebnisse eingetragen werden können.
 Aus diesen Ergebnissen soll dann automatisch eine Gruppentabelle erstellt werden.
-In den KO-Phasen sollen die Sieger der Gruppen (bzw. Qualifikanten) dann automatisch in der nächsten Runde angezeigt werden (Gesetzte Partien). 
+In den KO-Phasen sollen die Sieger der Gruppen (Qualifikanten) dann automatisch in der nächsten Runde angezeigt werden (Gesetzte Partien). 
 In KO-Phasen soll optional der Zusatz "Ergebnis nach Verlängerung" oder "Nach Elfmeterschießen" hinzugefügt werden können.
 Die Anwendung soll über das MVC-Pattern erstellt werden. Der "View" wird durch ein passendes GUI (SWING) erstellt oder über die Kommandozeile ausgeführt werden.
 Der Benutzer soll den aktuellen Spielplan abspeichern können.
@@ -29,4 +31,4 @@ Die Tabellenberechnung soll unmittelbar erfolgen. Da es sich um eine kleine Anwe
 Netzwerkauslastung vernachlässigt.
 System muss Java-Dateien ausführen können. 
 Es ist keine Benutzerauthentifikation nötig.
-Keine Ahnung, was hier noch so beschrieben werden soll...
+Keine Ahnung, was hier noch so beschrieben werden soll und ob das alles so in etwa richtig ist...
