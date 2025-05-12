@@ -1,0 +1,29 @@
+<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>160</x><y>170</y><w>140</w><h>100</h></coordinates><panel_attributes>Nation
+-
+- nation_id : Integer
+- name : String
+-
++ getNation() : String
++ setNation() : String</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>480</x><y>180</y><w>170</w><h>340</h></coordinates><panel_attributes>Match
+-
+- match_id : Integer
+- date : Date
+- teamHome : Nation
+- team Away : Nation
+- socreHome : Integer
+- scoreAway : Integer
+- extraTime : Boolean
+- penalty : Boolean
+-
++ getTeamHome() : String
++ setTeamHome() : String
++ getTeamAway() : String
++ setTeamAway() : String
++ getScoreHome() : Integer
++ setScoreHome() : Integer
++ getScoreAway() : Integer
++ setScoreAway() : Integer
++ getExtraTime() : Boolean
++ setExtraTime() : Boolean
++ getPenalty() : Boolean
++ setPenalty() : Boolean</panel_attributes><additional_attributes></additional_attributes></element></diagram>
