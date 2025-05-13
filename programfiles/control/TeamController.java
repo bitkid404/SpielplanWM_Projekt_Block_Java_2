@@ -1,11 +1,12 @@
 package programfiles.control;
 
-class TeamController {
+public class TeamController {
     // This class will handle the logic for team operations
     // such as creating, updating, and deleting teams.
     
     // Example method to create a team
-    public void createTeam(int teamID, String teamName) {
+    public  static void createTeam() {
+        System.out.println("Team created successfully!");//testausgabe
         // Logic to create a team
         // This would typically involve calling the model layer to persist the data
     }

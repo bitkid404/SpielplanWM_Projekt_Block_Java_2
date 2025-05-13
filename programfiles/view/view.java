@@ -1,6 +1,7 @@
 package programfiles.view;
 
 import javax.swing.*;
+import programfiles.control.*;
 
 public class View {
     private JFrame frame;
@@ -112,19 +113,18 @@ public class View {
         menuItem2.addActionListener(e -> System.exit(0));//später anpassen
         menuItem3.addActionListener(e -> System.exit(0));//später anpassen
         //Zweites Menü
-        menuItemTeamadd.addActionListener(e -> System.exit(0));//später anpassen
-        menuItemTeamremove.addActionListener(e -> System.exit(0));//später anpassen
+        menuItemTeamadd.addActionListener(e -> TeamController.createTeam());//später anpassen hier das hinzufügen der Teams
+        menuItemTeamremove.addActionListener(e -> System.exit(0));//später anpassen hier das entfernen der Teams
         //Menüs der Menüleiste hinzufügen
         menuBar.add(menu);
         menuBar.add(poolmenu);
         menuBar.add(groups);
         menuBar.add(timetable);
-        
-        //frame.setSize(600, 400);
         //Das Fenster wird in der Mitte des Bildschirms angezeigt
-        textArea = new JTextArea(20, 50);
+        textArea = new JTextArea(25, 60);
         textArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(textArea);
+        //frame.setSize(600, 400);
         frame.add(scrollPane);
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
