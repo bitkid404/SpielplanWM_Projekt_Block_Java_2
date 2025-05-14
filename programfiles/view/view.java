@@ -121,10 +121,10 @@ public class View {
         menuBar.add(groups);
         menuBar.add(timetable);
         //Das Fenster wird in der Mitte des Bildschirms angezeigt
-        textArea = new JTextArea(25, 60);
+        textArea = new JTextArea(20,50);
         textArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(textArea);
-        //frame.setSize(600, 400);
+        //frame.setBounds(150,150,900, 600);
         frame.add(scrollPane);
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
