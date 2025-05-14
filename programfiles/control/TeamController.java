@@ -5,10 +5,9 @@ public class TeamController {
     // such as creating, updating, and deleting teams.
     
     // Example method to create a team
-    public  static void createTeam() {
-        System.out.println("Team created successfully!");//testausgabe
-        // Logic to create a team
-        // This would typically involve calling the model layer to persist the data
+    public  static void createTeam(String teamName) {
+        System.out.println("Team created successfully!" + teamName);//testausgabe
+        
     }
     
     // Example method to update a team

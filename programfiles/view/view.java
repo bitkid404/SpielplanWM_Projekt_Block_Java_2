@@ -113,7 +113,7 @@ public class View {
         menuItem2.addActionListener(e -> System.exit(0));//später anpassen
         menuItem3.addActionListener(e -> System.exit(0));//später anpassen
         //Zweites Menü
-        menuItemTeamadd.addActionListener(e -> TeamController.createTeam());//später anpassen hier das hinzufügen der Teams
+        menuItemTeamadd.addActionListener(e -> getInput());//später anpassen hier das hinzufügen der Teams
         menuItemTeamremove.addActionListener(e -> System.exit(0));//später anpassen hier das entfernen der Teams
         //Menüs der Menüleiste hinzufügen
         menuBar.add(menu);
@@ -141,4 +141,17 @@ public class View {
     public void clearTextArea() {
         textArea.setText("");
     }
+
+    public void getInput() {
+        //Eingabeaufforderung für den Namen des neuen Teams und Errormessage
+        String inputNewTeam = JOptionPane.showInputDialog("Enter the name of the new team:");
+        if (inputNewTeam == null || inputNewTeam.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Team name cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        //Eingabe wird an Controller weitergeleitet
+        TeamController.createTeam(inputNewTeam);
+    }
+
+    
 }
