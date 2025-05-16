@@ -4,6 +4,7 @@ import java.sql.*;
 import java.util.LinkedList;
 import java.util.ArrayList;
 import programfiles.model.Team;
+import programfiles.view.View;
 // import java.sql.Connection;
 // import java.sql.DriverManager;
 // import java.sql.PreparedStatement;
@@ -82,11 +83,24 @@ public class DatabaseConnector {
 
 		public void addTeam(String inputNew){
 			try{
-				String sql = "INSERT INTO Teams (team_name) VALUES (?)";
+				//Überprüfen, ob das Team bereits existiert
+				String check = "SELECT * FROM Teams WHERE team_name = ?";
+				PreparedStatement pstmtCheck = con.prepareStatement(check);
+				pstmtCheck.setString(1, inputNew);
+				ResultSet rs = pstmtCheck.executeQuery();
+				if(rs.next()){
+					System.out.println("Team existiert bereits!");
+					rs.close();
+					pstmtCheck.close();
+					View.displayTeamAlreadyExistsMessage();
+					return;
+				}
+				String sql = "INSERT INTO Teams (team_name, goals_total, goals_against_total, points) VALUES (?, 0, 0, 0)";
 				PreparedStatement pstmt = con.prepareStatement(sql);
 				pstmt.setString(1, inputNew);
 				pstmt.executeUpdate();
 				pstmt.close();
+				View.displayOKMessage();
 				System.out.println("Team erfolgreich hinzugefügt!");
 			} catch(SQLException e){
 				System.err.println(e.getMessage());
@@ -115,6 +129,37 @@ public class DatabaseConnector {
 				teamList += team + "\n";
 			}
 			return teamList;
+		}
+
+		//Nur ein Team löschen
+		public void deleteTeam(String inputDeleteTeam){
+			try{
+				//Überprüfen, ob das Team existiert
+				String check = "SELECT * FROM Teams WHERE team_name = ?";
+				PreparedStatement pstmtCheck = con.prepareStatement(check);
+				pstmtCheck.setString(1, inputDeleteTeam);
+				ResultSet rs = pstmtCheck.executeQuery();
+				if(!rs.next()){
+					System.out.println("Team nicht gefunden!");
+					rs.close();
+					pstmtCheck.close();
+					View.displayErrorMessage();
+					return;
+				}
+				//Wenn das Team existiert, löschen und Bestätigungsdialog anzeigen
+				String sql = "DELETE FROM Teams WHERE team_name = ?";
+				PreparedStatement pstmt = con.prepareStatement(sql);
+				pstmt.setString(1, inputDeleteTeam);
+				pstmt.executeUpdate();
+				pstmt.close();
+				rs.close();
+				pstmtCheck.close();
+				View.displayDeleteOKMessage();
+				System.out.println("Team erfolgreich gelöscht!");
+			} catch(SQLException e){
+				System.err.println(e.getMessage());
+				System.out.println("Fehler beim Löschen des Teams aus der Datenbank!");
+			}
 		}
 
 		//Alle Teams aus der Datenbank löschen

@@ -1,6 +1,7 @@
 package programfiles.view;
 
 import database.DatabaseConnector;
+import java.awt.Dimension;
 import javax.swing.*;
 //import programfiles.control.*;
 
@@ -26,6 +27,7 @@ public class View {
         //Zweites Menü
         JMenuItem menuItemTeamadd;
         JMenuItem menuItemTeamremove;
+        JMenuItem menuItemAllTeamsView;
         JMenuItem menuItemAllTeamsRemove;
         //Drittes Menü
         JMenuItem menuItemGroupA;
@@ -61,6 +63,7 @@ public class View {
         //Zweites Menü
         menuItemTeamadd = new JMenuItem("Team hinzufügen");
         menuItemTeamremove = new JMenuItem("Team entfernen");
+        menuItemAllTeamsView = new JMenuItem("Alle Teams anzeigen");
         menuItemAllTeamsRemove = new JMenuItem("Alle Teams entfernen");
         //Drittes Menü
         menuItemGroupA = new JMenuItem("Gruppe A");
@@ -90,6 +93,8 @@ public class View {
         //zweites Menü
         poolmenu.add(menuItemTeamadd);
         poolmenu.add(menuItemTeamremove);
+        poolmenu.add(menuItemAllTeamsView);
+        poolmenu.add(menuItemAllTeamsRemove);
         //drittes Menü
         groups.add(menuItemGroupA);
         groups.add(menuItemGroupB);
@@ -111,14 +116,41 @@ public class View {
         timetable.add(menuItemTimeTable2);
         timetable.add(menuItemTimeTableFinale);
         
-        //Menüpunkte mit Funktionen versehen
+        //Menüpunkte laden, speichern und beenden mit Funktionen versehen
         menuItem.addActionListener(e -> System.exit(0));
         menuItem2.addActionListener(e -> System.exit(0));//später anpassen
         menuItem3.addActionListener(e -> System.exit(0));//später anpassen
-        //Zweites Menü
-        menuItemTeamadd.addActionListener(e -> getInput());//später anpassen hier das hinzufügen der Teams
-        menuItemTeamremove.addActionListener(e -> System.exit(0));//später anpassen hier das entfernen der Teams
+        //Zweites Menü für Team-Pool
+        menuItemTeamadd.addActionListener(e -> getInput());
+        menuItemTeamremove.addActionListener(e -> deleteOneTeamFromDB());//später anpassen hier das entfernen der Teams
+        menuItemAllTeamsView.addActionListener(e -> getTeamsToView());
         menuItemAllTeamsRemove.addActionListener(e -> deleteAllTeamsFromDB());//später anpassen hier das entfernen aller Teams
+
+        //Drittes Menü für Gruppen
+        menuItemGroupA.addActionListener(e -> {
+            // Neues Child-Window (Dialog) erstellen
+            JDialog groupADialog = new JDialog(frame, "Gruppe A", true);
+            groupADialog.setSize(400, 300);
+            groupADialog.setLocationRelativeTo(frame);
+            groupADialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+            // Beispielinhalt für das Child-Window
+            JLabel labelGroupA = new JLabel("Wählen Sie die Mannschaften für diese Gruppe aus:");
+            labelGroupA.setHorizontalAlignment(SwingConstants.CENTER);
+            groupADialog.add(labelGroupA, "North");
+            
+            JButton okButton = new JButton("speichern");
+            JButton cancelButton = new JButton("Abbrechen");
+            okButton.setPreferredSize(new Dimension(100, 42));
+            cancelButton.setPreferredSize(new Dimension(100, 42));
+            okButton.addActionListener(e1 -> System.out.println("OK Button clicked"));
+            cancelButton.addActionListener(e1 -> System.out.println("Cancel Button clicked"));
+            JPanel buttonPanel = new JPanel();
+            buttonPanel.add(okButton);
+            buttonPanel.add(cancelButton);
+            groupADialog.add(buttonPanel, "South");
+            groupADialog.setVisible(true);
+        });
         //Menüs der Menüleiste hinzufügen
         menuBar.add(menu);
         menuBar.add(poolmenu);
@@ -142,15 +174,37 @@ public class View {
         textArea.append(message + "\n");
     }
 
+    //Wird aufgefrufen, wenn kein Datenbankeintrag gefunden wurde
+    public static void displayErrorMessage(){
+        JOptionPane.showMessageDialog(null, "Team nicht gefunden!", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    //Team ist schon vorhanden
+    public static void displayTeamAlreadyExistsMessage(){
+        JOptionPane.showMessageDialog(null, "Team ist bereits vorhanden!", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    //Bestätigungsdialog für das Hinzufügen eines Teams
+    public static void displayOKMessage(){
+        JOptionPane.showMessageDialog(null, "Team erfolgreich hinzugefügt!", "Info", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    //Bestätigungsdialog für das Löschen eines Teams
+    public static void displayDeleteOKMessage(){
+        JOptionPane.showMessageDialog(null, "Team erfolgreich gelöscht!", "Info", JOptionPane.INFORMATION_MESSAGE);
+    }   
+
+    // Methode zum Löschen des Textfelds
     public void clearTextArea() {
         textArea.setText("");
     }
 
+    //Eingabefeld für neues Team zum Eintragen in die Datenbank
     public void getInput() {
         //Eingabeaufforderung für den Namen des neuen Teams und Errormessage
-        String inputNewTeam = JOptionPane.showInputDialog("Enter the name of the new team:");
+        String inputNewTeam = JOptionPane.showInputDialog("Neues Team eingeben:");
         if (inputNewTeam == null || inputNewTeam.trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Team name cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Keine Eingabe gemacht.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         //Neues datenbank-Objekt und Eingabe wird an Controller weitergeleitet
@@ -159,16 +213,44 @@ public class View {
         dbConnector.closeConnection();//Connection schließen
     }
 
-    public void deleteAllTeamsFromDB() {
+    //Eingabefeld für das Entfernen eines Teams
+    //Hier wird das Team aus der DB gelöscht
+    public void deleteOneTeamFromDB() {
         //Eingabeaufforderung für den Namen des neuen Teams und Errormessage
-        int response = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete all teams?", "Confirm", JOptionPane.YES_NO_OPTION);
-        System.out.println("hier nach jpane");
-            if (response == JOptionPane.YES_OPTION) {
-                DatabaseConnector dbConnector = new DatabaseConnector();
-                dbConnector.deleteAllTeams();
-                dbConnector.closeConnection();//Connection schließen
+        String inputDeleteTeam = JOptionPane.showInputDialog("Welches Team soll gelöscht werden?:");
+        if (inputDeleteTeam == null || inputDeleteTeam.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Keine Eingabe gemacht.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
+        //Neues datenbank-Objekt und Eingabe wird an Controller weitergeleitet
+        DatabaseConnector dbConnector = new DatabaseConnector();
+        dbConnector.deleteTeam(inputDeleteTeam);
+        dbConnector.closeConnection();//Connection schließen
     }
 
+    //Ruft die Methode auf, um alle Teams aus der DB anzuzeigen
+    public void getTeamsToView() {
+        DatabaseConnector viewdbConnector = new DatabaseConnector();
+        String liste = viewdbConnector.getTeams();
+        clearTextArea();
+        displayMessage("Dieses Team ist schon vorhanden:");
+        displayMessage(liste);
+    }
+
+    //Löscht alle Teams aus der DB
+    public void deleteAllTeamsFromDB(){
+        //Eingabeaufforderung für den Namen des neuen Teams und Errormessage
+        int response = JOptionPane.showConfirmDialog(null, "Wirklich alle Teams löschen?", "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+        //Wenn der Benutzer auf "Ja" klickt, werden alle Teams aus der DB gelöscht
+        if (response == JOptionPane.YES_OPTION) {
+            DatabaseConnector dbConnector = new DatabaseConnector();
+            dbConnector.deleteAllTeams();
+            dbConnector.closeConnection();
+            System.out.println("Verbindung beendet");//Connection schließen
+        }
+        else if (response == JOptionPane.NO_OPTION) {
+            JOptionPane.showMessageDialog(null, "Es wurde kein Team gelöscht.", "Info", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
     
 }
