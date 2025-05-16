@@ -1,7 +1,8 @@
 package programfiles.view;
 
+import database.DatabaseConnector;
 import javax.swing.*;
-import programfiles.control.*;
+//import programfiles.control.*;
 
 public class View {
     private JFrame frame;
@@ -25,6 +26,7 @@ public class View {
         //Zweites Menü
         JMenuItem menuItemTeamadd;
         JMenuItem menuItemTeamremove;
+        JMenuItem menuItemAllTeamsRemove;
         //Drittes Menü
         JMenuItem menuItemGroupA;
         JMenuItem menuItemGroupB;
@@ -59,6 +61,7 @@ public class View {
         //Zweites Menü
         menuItemTeamadd = new JMenuItem("Team hinzufügen");
         menuItemTeamremove = new JMenuItem("Team entfernen");
+        menuItemAllTeamsRemove = new JMenuItem("Alle Teams entfernen");
         //Drittes Menü
         menuItemGroupA = new JMenuItem("Gruppe A");
         menuItemGroupB = new JMenuItem("Gruppe B");
@@ -115,6 +118,7 @@ public class View {
         //Zweites Menü
         menuItemTeamadd.addActionListener(e -> getInput());//später anpassen hier das hinzufügen der Teams
         menuItemTeamremove.addActionListener(e -> System.exit(0));//später anpassen hier das entfernen der Teams
+        menuItemAllTeamsRemove.addActionListener(e -> deleteAllTeamsFromDB());//später anpassen hier das entfernen aller Teams
         //Menüs der Menüleiste hinzufügen
         menuBar.add(menu);
         menuBar.add(poolmenu);
@@ -149,8 +153,21 @@ public class View {
             JOptionPane.showMessageDialog(null, "Team name cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        //Eingabe wird an Controller weitergeleitet
-        TeamController.createTeam(inputNewTeam);
+        //Neues datenbank-Objekt und Eingabe wird an Controller weitergeleitet
+        DatabaseConnector dbConnector = new DatabaseConnector();
+        dbConnector.addTeam(inputNewTeam);
+        dbConnector.closeConnection();//Connection schließen
+    }
+
+    public void deleteAllTeamsFromDB() {
+        //Eingabeaufforderung für den Namen des neuen Teams und Errormessage
+        int response = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete all teams?", "Confirm", JOptionPane.YES_NO_OPTION);
+        System.out.println("hier nach jpane");
+            if (response == JOptionPane.YES_OPTION) {
+                DatabaseConnector dbConnector = new DatabaseConnector();
+                dbConnector.deleteAllTeams();
+                dbConnector.closeConnection();//Connection schließen
+        }
     }
 
     
