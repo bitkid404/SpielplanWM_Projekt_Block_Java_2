@@ -122,13 +122,13 @@ public class View {
         menuItem.addActionListener(e -> System.exit(0));
         menuItem2.addActionListener(e -> System.exit(0));//später anpassen
         menuItem3.addActionListener(e -> System.exit(0));//später anpassen
-        //Zweites Menü für Team-Pool
+        //Zweites Menü für Team-Pool mit Event-Listener
         menuItemTeamadd.addActionListener(e -> getInput());
         menuItemTeamremove.addActionListener(e -> deleteOneTeamFromDB());//später anpassen hier das entfernen der Teams
         menuItemAllTeamsView.addActionListener(e -> getTeamsToView());
         menuItemAllTeamsRemove.addActionListener(e -> deleteAllTeamsFromDB());//später anpassen hier das entfernen aller Teams
 
-        //Drittes Menü für Gruppen
+        //Drittes Menü für Gruppen mit Event-Listener 
         menuItemGroupA.addActionListener(e -> {
             // Neues Child-Window (Dialog) erstellen
             JDialog groupADialog = new JDialog(frame, "Gruppe A", true);
@@ -136,26 +136,21 @@ public class View {
             groupADialog.setLocationRelativeTo(frame);
             groupADialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
           
-            Container contentPane = groupADialog.getContentPane();
-             SpringLayout layout = new SpringLayout();
-            contentPane.setLayout(layout);
-
-
-
-            //groupADialog.setLayout(new BoxLayout(listPane, BoxLayout.PAGE_AXIS));
 
             // Beispielinhalt für das Child-Window
             JLabel labelGroupA = new JLabel("Wählen Sie die Mannschaften für diese Gruppe aus:");
+            labelGroupA.setPreferredSize(new Dimension(300, 30));
+            labelGroupA.setVerticalAlignment(SwingConstants.CENTER);
             labelGroupA.setHorizontalAlignment(SwingConstants.CENTER);
-            contentPane.add(labelGroupA);
+            groupADialog.add(labelGroupA);
             
             //Ruft eine Schleife für die erstellung der Checkboxen auf
             String teams_check = getTeamsToGroup();
             String[] teamsArray = teams_check.split("\n");
             for (String team : teamsArray) {
                 JCheckBox teambox = new JCheckBox(team);
-              
-                      contentPane.add(teambox);
+                teambox.setText(team);
+                groupADialog.add(teambox);
 
                
             }
@@ -173,19 +168,19 @@ public class View {
             JPanel buttonPanel = new JPanel();
             buttonPanel.add(okButton);
             buttonPanel.add(cancelButton);
-
-            layout.putConstraint(SpringLayout.SOUTH, okButton,
-                     5,
-                     SpringLayout.SOUTH, cancelButton);  
-                     
-
-            contentPane.add(buttonPanel);
-            contentPane.setVisible(true);
-            //contentPane.pack();
+            groupADialog.add(buttonPanel);
             groupADialog.pack();
         //    groupADialog.add(listPane);
             groupADialog.setVisible(true);
         });
+
+        //Viertes Menü für den Spielplan mit Event-Listener
+        menuItemTimeTableGroup.addActionListener(e2 -> getGroupMatches());
+        menuItemTimeTable16.addActionListener(e2 -> System.out.println("16tel Finale"));
+        menuItemTimeTable8.addActionListener(e2 -> System.out.println("Achtelfinale"));
+        menuItemTimeTable4.addActionListener(e2 -> System.out.println("Viertelfinale"));
+        menuItemTimeTable2.addActionListener(e2 -> System.out.println("Halbinale"));
+        menuItemTimeTableFinale.addActionListener(e2 -> System.out.println("Finale"));
 
         //Menüs der Menüleiste hinzufügen
         menuBar.add(menu);
@@ -294,6 +289,16 @@ public class View {
         DatabaseConnector dbConnector = new DatabaseConnector();
         String liste = dbConnector.getTeamsWithoutGroup();
         return liste;
+    }
+
+    //Alle Gruppenspiele aus Datenbank abrufen
+    public void getGroupMatches() {
+        DatabaseConnector dbConnector = new DatabaseConnector();
+        String liste = dbConnector.getAllGroupMatches();
+        clearTextArea();
+        displayMessage("Gruppenspiele:");
+        displayMessage(liste);
+        //return liste;
     }
     
 }

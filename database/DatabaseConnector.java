@@ -200,4 +200,30 @@ public class DatabaseConnector {
 			}
 			return teamList;
 		}
+
+		//Kompletten Vorrundenspielplan aus Datenbank holen
+		public String getAllGroupMatches(){
+			ArrayList<String> matches = new ArrayList<String>();
+			try{
+				Statement stmt = con.createStatement();
+				ResultSet rs = stmt.executeQuery("SELECT * FROM Matchs");
+				while(rs.next()){
+					String matchID = rs.getString("match_id");
+					String team1 = rs.getString("team_home");
+					String team2 = rs.getString("team_away");
+					String date = rs.getString("day");
+					matches.add(matchID + ": " + team1 + " vs. " + team2 + " am " + date);
+				}
+				rs.close();
+				stmt.close();
+			} catch(SQLException e){
+				System.err.println(e.getMessage());
+				System.out.println("Fehler beim Abrufen der Spiele aus der Datenbank!");
+			}
+			String groupMatchList = "";
+			for(String match : matches){
+				groupMatchList += match + "\n";
+			}
+			return groupMatchList;
+		}
 }
