@@ -1,6 +1,8 @@
 package programfiles.view;
 
 import database.DatabaseConnector;
+
+import java.awt.Container;
 import java.awt.Dimension;
 import javax.swing.*;
 //import programfiles.control.*;
@@ -133,24 +135,58 @@ public class View {
             groupADialog.setSize(400, 300);
             groupADialog.setLocationRelativeTo(frame);
             groupADialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+          
+            Container contentPane = groupADialog.getContentPane();
+             SpringLayout layout = new SpringLayout();
+            contentPane.setLayout(layout);
+
+
+
+            //groupADialog.setLayout(new BoxLayout(listPane, BoxLayout.PAGE_AXIS));
 
             // Beispielinhalt für das Child-Window
             JLabel labelGroupA = new JLabel("Wählen Sie die Mannschaften für diese Gruppe aus:");
             labelGroupA.setHorizontalAlignment(SwingConstants.CENTER);
-            groupADialog.add(labelGroupA, "North");
+            contentPane.add(labelGroupA);
             
+            //Ruft eine Schleife für die erstellung der Checkboxen auf
+            String teams_check = getTeamsToGroup();
+            String[] teamsArray = teams_check.split("\n");
+            for (String team : teamsArray) {
+                JCheckBox teambox = new JCheckBox(team);
+              
+                      contentPane.add(teambox);
+
+               
+            }
+                // JCheckBox checkBox = new JCheckBox(team);
+                // groupADialog.add(checkBox);
+            
+                
+
             JButton okButton = new JButton("speichern");
             JButton cancelButton = new JButton("Abbrechen");
             okButton.setPreferredSize(new Dimension(100, 42));
             cancelButton.setPreferredSize(new Dimension(100, 42));
             okButton.addActionListener(e1 -> System.out.println("OK Button clicked"));
-            cancelButton.addActionListener(e1 -> System.out.println("Cancel Button clicked"));
+            cancelButton.addActionListener(e1 -> groupADialog.dispose());
             JPanel buttonPanel = new JPanel();
             buttonPanel.add(okButton);
             buttonPanel.add(cancelButton);
-            groupADialog.add(buttonPanel, "South");
+
+            layout.putConstraint(SpringLayout.SOUTH, okButton,
+                     5,
+                     SpringLayout.SOUTH, cancelButton);  
+                     
+
+            contentPane.add(buttonPanel);
+            contentPane.setVisible(true);
+            //contentPane.pack();
+            groupADialog.pack();
+        //    groupADialog.add(listPane);
             groupADialog.setVisible(true);
         });
+
         //Menüs der Menüleiste hinzufügen
         menuBar.add(menu);
         menuBar.add(poolmenu);
@@ -251,6 +287,13 @@ public class View {
         else if (response == JOptionPane.NO_OPTION) {
             JOptionPane.showMessageDialog(null, "Es wurde kein Team gelöscht.", "Info", JOptionPane.INFORMATION_MESSAGE);
         }
+    }
+
+    //Ruft alle Teams aus Datenbank, die noch keiner Gruppe zugeordnet sind
+    public String getTeamsToGroup() {
+        DatabaseConnector dbConnector = new DatabaseConnector();
+        String liste = dbConnector.getTeamsWithoutGroup();
+        return liste;
     }
     
 }

@@ -19,7 +19,7 @@ public class DatabaseConnector {
 	public DatabaseConnector(){
 		try{
 			Class.forName("org.sqlite.JDBC");
-			String db = "jdbc:sqlite:C:/Users/rgrik/Desktop/script-folder/Spielplan_Projekt_JavaII/SpielplanWM_Projekt_Block_Java_2/database/wmplandatabase.db";
+			String db = "jdbc:sqlite:database/wmplandatabase.db";
 			this.con = DriverManager.getConnection(db);
 			System.out.println("Verbindung zur Datenbank hergestellt!");
 
@@ -81,6 +81,7 @@ public class DatabaseConnector {
 			return teams;
 		}
 
+		//Fügt ein neues Team zur Datenbank hinzu
 		public void addTeam(String inputNew){
 			try{
 				//Überprüfen, ob das Team bereits existiert
@@ -95,6 +96,8 @@ public class DatabaseConnector {
 					View.displayTeamAlreadyExistsMessage();
 					return;
 				}
+				//Belegt den Datensatz mit den Standardwerten
+				// und fügt das Team zur Datenbank hinzu
 				String sql = "INSERT INTO Teams (team_name, goals_total, goals_against_total, points) VALUES (?, 0, 0, 0)";
 				PreparedStatement pstmt = con.prepareStatement(sql);
 				pstmt.setString(1, inputNew);
@@ -173,5 +176,28 @@ public class DatabaseConnector {
 				System.err.println(e.getMessage());
 				System.out.println("Fehler beim Löschen der Teams aus der Datenbank!");
 			}
+		}
+
+		//Ruft alle Teams aus Datenbank, die noch in keiner Gruppe sind
+		public String getTeamsWithoutGroup(){
+			ArrayList<String> teams = new ArrayList<String>();
+			try{
+				Statement stmt = con.createStatement();
+				ResultSet rs = stmt.executeQuery("SELECT team_name FROM Teams WHERE wm_group IS NULL");
+				while(rs.next()){
+					String teamName = rs.getString("team_name");
+					teams.add(teamName);
+				}
+				rs.close();
+				stmt.close();
+			} catch(SQLException e){
+				System.err.println(e.getMessage());
+				System.out.println("Fehler beim Abrufen der Teams aus der Datenbank!");
+			}
+			String teamList = "";
+			for(String team : teams){
+				teamList += team + "\n";
+			}
+			return teamList;
 		}
 }
