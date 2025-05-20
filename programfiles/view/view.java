@@ -4,6 +4,8 @@ import database.DatabaseConnector;
 
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.event.ActionListener;
+
 import javax.swing.*;
 //import programfiles.control.*;
 
@@ -129,50 +131,18 @@ public class View {
         menuItemAllTeamsRemove.addActionListener(e -> deleteAllTeamsFromDB());//später anpassen hier das entfernen aller Teams
 
         //Drittes Menü für Gruppen mit Event-Listener 
-        menuItemGroupA.addActionListener(e -> {
-            // Neues Child-Window (Dialog) erstellen
-            JDialog groupADialog = new JDialog(frame, "Gruppe A", true);
-            groupADialog.setSize(400, 300);
-            groupADialog.setLocationRelativeTo(frame);
-            groupADialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-          
-
-            // Beispielinhalt für das Child-Window
-            JLabel labelGroupA = new JLabel("Wählen Sie die Mannschaften für diese Gruppe aus:");
-            labelGroupA.setPreferredSize(new Dimension(300, 30));
-            labelGroupA.setVerticalAlignment(SwingConstants.CENTER);
-            labelGroupA.setHorizontalAlignment(SwingConstants.CENTER);
-            groupADialog.add(labelGroupA);
-            
-            //Ruft eine Schleife für die erstellung der Checkboxen auf
-            String teams_check = getTeamsToGroup();
-            String[] teamsArray = teams_check.split("\n");
-            for (String team : teamsArray) {
-                JCheckBox teambox = new JCheckBox(team);
-                teambox.setText(team);
-                groupADialog.add(teambox);
-
-               
-            }
-                // JCheckBox checkBox = new JCheckBox(team);
-                // groupADialog.add(checkBox);
-            
-                
-
-            JButton okButton = new JButton("speichern");
-            JButton cancelButton = new JButton("Abbrechen");
-            okButton.setPreferredSize(new Dimension(100, 42));
-            cancelButton.setPreferredSize(new Dimension(100, 42));
-            okButton.addActionListener(e1 -> System.out.println("OK Button clicked"));
-            cancelButton.addActionListener(e1 -> groupADialog.dispose());
-            JPanel buttonPanel = new JPanel();
-            buttonPanel.add(okButton);
-            buttonPanel.add(cancelButton);
-            groupADialog.add(buttonPanel);
-            groupADialog.pack();
-        //    groupADialog.add(listPane);
-            groupADialog.setVisible(true);
-        });
+        menuItemGroupA.addActionListener(e -> addTeamToGroup("Gruppe A"));
+        menuItemGroupB.addActionListener(e -> addTeamToGroup("Gruppe B"));
+        menuItemGroupC.addActionListener(e -> addTeamToGroup("Gruppe C"));
+        menuItemGroupD.addActionListener(e -> addTeamToGroup("Gruppe D"));
+        menuItemGroupE.addActionListener(e -> addTeamToGroup("Gruppe E"));
+        menuItemGroupF.addActionListener(e -> addTeamToGroup("Gruppe F"));
+        menuItemGroupG.addActionListener(e -> addTeamToGroup("Gruppe G"));
+        menuItemGroupH.addActionListener(e -> addTeamToGroup("Gruppe H"));
+        menuItemGroupI.addActionListener(e -> addTeamToGroup("Gruppe I"));
+        menuItemGroupJ.addActionListener(e -> addTeamToGroup("Gruppe J"));
+        menuItemGroupK.addActionListener(e -> addTeamToGroup("Gruppe K"));
+        menuItemGroupL.addActionListener(e -> addTeamToGroup("Gruppe L"));
 
         //Viertes Menü für den Spielplan mit Event-Listener
         menuItemTimeTableGroup.addActionListener(e2 -> getGroupMatches());
@@ -223,7 +193,12 @@ public class View {
     //Bestätigungsdialog für das Löschen eines Teams
     public static void displayDeleteOKMessage(){
         JOptionPane.showMessageDialog(null, "Team erfolgreich gelöscht!", "Info", JOptionPane.INFORMATION_MESSAGE);
-    }   
+    } 
+    
+    //Fehlermeldung Gruppe schon voll
+    public static void displayGroupFullMessage(){
+        JOptionPane.showMessageDialog(null, "Gruppe ist mit vier Mannschaften schon voll!", "Error", JOptionPane.ERROR_MESSAGE);
+    }
 
     // Methode zum Löschen des Textfelds
     public void clearTextArea() {
@@ -242,6 +217,7 @@ public class View {
         DatabaseConnector dbConnector = new DatabaseConnector();
         dbConnector.addTeam(inputNewTeam);
         dbConnector.closeConnection();//Connection schließen
+        getTeamsToView();
     }
 
     //Eingabefeld für das Entfernen eines Teams
@@ -263,9 +239,23 @@ public class View {
     public void getTeamsToView() {
         DatabaseConnector viewdbConnector = new DatabaseConnector();
         String liste = viewdbConnector.getTeams();
+        viewdbConnector.closeConnection();
         clearTextArea();
-        displayMessage("Dieses Team ist schon vorhanden:");
+        displayMessage("Diese Teams sind in der Datenbank vorhanden:");
+        displayMessage(" ");
         displayMessage(liste);
+    }
+
+    //Ruft alle Teams nach Gruppenname ab
+    public void getTeamsFromGroup(String group) {
+        DatabaseConnector dbConnector = new DatabaseConnector();
+        String liste = dbConnector.getTeamsInGroup(group);
+        dbConnector.closeConnection();
+        clearTextArea();
+        displayMessage("Teams in " + group + ":");
+        displayMessage(" ");
+        displayMessage(liste);
+        //return liste;
     }
 
     //Löscht alle Teams aus der DB
@@ -288,6 +278,8 @@ public class View {
     public String getTeamsToGroup() {
         DatabaseConnector dbConnector = new DatabaseConnector();
         String liste = dbConnector.getTeamsWithoutGroup();
+        dbConnector.closeConnection();
+        clearTextArea();
         return liste;
     }
 
@@ -295,10 +287,30 @@ public class View {
     public void getGroupMatches() {
         DatabaseConnector dbConnector = new DatabaseConnector();
         String liste = dbConnector.getAllGroupMatches();
+        dbConnector.closeConnection();
+        //Hier wird die Liste der Gruppenspiele angezeigt
         clearTextArea();
         displayMessage("Gruppenspiele:");
         displayMessage(liste);
         //return liste;
+    }
+
+    //Fügt ein Team zu einer Gruppe hinzu
+    public void addTeamToGroup(String group) {
+        //Eingabeaufforderung für den Namen des neuen Teams und Errormessage
+        String inputTeam = JOptionPane.showInputDialog("Team zur " + group + " hinzufügen:");
+        if (inputTeam == null || inputTeam.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Keine Eingabe gemacht.", "Error", JOptionPane.ERROR_MESSAGE);
+            getTeamsFromGroup(group);
+            return;
+        }
+
+        //Neues datenbank-Objekt und Eingabe wird an Controller weitergeleitet
+        DatabaseConnector dbConnector = new DatabaseConnector();
+        dbConnector.addTeamToGroupDB(inputTeam, group);
+        dbConnector.closeConnection();//Connection schließen
+        getTeamsFromGroup(group);
+
     }
     
 }

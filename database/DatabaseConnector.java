@@ -116,10 +116,14 @@ public class DatabaseConnector {
 			ArrayList<String> teams = new ArrayList<String>();
 			try{
 				Statement stmt = con.createStatement();
-				ResultSet rs = stmt.executeQuery("SELECT team_name FROM Teams");
+				ResultSet rs = stmt.executeQuery("SELECT team_name, wm_group FROM Teams");
 				while(rs.next()){
 					String teamName = rs.getString("team_name");
-					teams.add(teamName);
+					String group = rs.getString("wm_group");
+					if(group == null){
+						group = "keine Gruppe";
+					}
+					teams.add(teamName + "  -  " + group);
 				}
 				rs.close();
 				stmt.close();
@@ -201,6 +205,36 @@ public class DatabaseConnector {
 			return teamList;
 		}
 
+		//Ruft alle Teams aus Datenbank, die in einer bestimmten Gruppe sind
+		public String getTeamsInGroup(String inputGroup){
+			ArrayList<String> teams = new ArrayList<String>();
+			try{
+				String sql = "SELECT team_name, goals_total, goals_against_total, points FROM Teams WHERE wm_group = ? ORDER BY points DESC, (goals_total - goals_against_total) DESC";
+				PreparedStatement pstmt = con.prepareStatement(sql);
+				pstmt.setString(1, inputGroup);
+				ResultSet rs = pstmt.executeQuery();
+				while(rs.next()){
+					String teamName = rs.getString("team_name");
+					Integer totalGoals = rs.getInt("goals_total");
+					Integer totalGoalsAgainst = rs.getInt("goals_against_total");
+					Integer totalPoints = rs.getInt("points");
+					teams.add(String.format("%-30s  Tore: %2d : %-2d   Punkte: %2d", teamName, totalGoals, totalGoalsAgainst, totalPoints));
+				}
+				rs.close();
+				pstmt.close();
+			} catch(SQLException e){
+				System.err.println(e.getMessage());
+				System.out.println("Fehler beim Abrufen der Teams aus der Datenbank!");
+			}
+			String teamList = "";
+			for(String team : teams){
+				teamList += team + "\n";
+			}
+			
+			return teamList;
+		}
+
+
 		//Kompletten Vorrundenspielplan aus Datenbank holen
 		public String getAllGroupMatches(){
 			ArrayList<String> matches = new ArrayList<String>();
@@ -225,5 +259,52 @@ public class DatabaseConnector {
 				groupMatchList += match + "\n";
 			}
 			return groupMatchList;
+		}
+
+		//Team zur Gruppe hinzufügen
+		public void addTeamToGroupDB(String inputTeam, String inputGroup){
+			try{
+				//Überprüfen, ob das Team existiert
+				String check = "SELECT * FROM Teams WHERE team_name = ?";
+				PreparedStatement pstmtCheck = con.prepareStatement(check);
+				pstmtCheck.setString(1, inputTeam);
+				ResultSet rs = pstmtCheck.executeQuery();
+				if(!rs.next()){
+					System.out.println("Team nicht gefunden!");
+					rs.close();
+					pstmtCheck.close();
+					View.displayErrorMessage();
+					return;
+				}
+				//Überprüfen, ob schon maximal vier Teams in der Gruppe sind
+				String checkGroup = "SELECT * FROM Teams WHERE wm_group = ?";
+				PreparedStatement pstmtCheckGroup = con.prepareStatement(checkGroup);
+				pstmtCheckGroup.setString(1, inputGroup);
+				ResultSet rsGroup = pstmtCheckGroup.executeQuery();
+				int count = 0;
+				while(rsGroup.next()){
+					count++;
+				}
+				if(count >= 4){
+					System.out.println("Gruppe ist bereits voll!");
+					rsGroup.close();
+					pstmtCheckGroup.close();
+					View.displayGroupFullMessage();
+					return;
+				}
+				//Wenn das Team existiert, Gruppe zuweisen
+				String sql = "UPDATE Teams SET wm_group = ? WHERE team_name = ?";
+				PreparedStatement pstmt = con.prepareStatement(sql);
+				pstmt.setString(1, inputGroup);
+				pstmt.setString(2, inputTeam);
+				pstmt.executeUpdate();
+				pstmt.close();
+				rs.close();
+				pstmtCheck.close();
+				View.displayOKMessage();
+			} catch(SQLException e){
+				System.err.println(e.getMessage());
+				System.out.println("Fehler beim Hinzufügen des Teams zur Gruppe!");
+			}
 		}
 }
